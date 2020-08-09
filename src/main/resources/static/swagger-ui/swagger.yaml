@@ -1,0 +1,115 @@
+openapi: '3.0.2'
+info:
+  title: Inventory API
+  description: Inventory public api
+  version: 1.0.0
+
+
+servers:
+  - url: /api
+    description: relative path
+  - url: http://localhost:8082/api
+    description: local running
+
+paths:
+
+  /equipments/users/{id}:
+    get:
+      tags:
+        - equipments
+      summary: Получить оборудование пользователя постранично
+      parameters:
+        - $ref: '#/components/parameters/objectIdParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/offsetParam'
+        - $ref: '#/components/parameters/sortDirectionParam'
+        - $ref: '#/components/parameters/SortByParam'
+      responses:
+        200:
+          $ref: '#/components/responses/EquipmentPageableResponse'
+
+
+components:
+  parameters:
+    objectIdParam:
+      in: path
+      name: id
+      description: Идентификатор объекта
+      example: "1f412a29-9db6-41a8-bf9a-f7cb1a051c89"
+      schema:
+        type: string
+        format: uuid
+      required: true
+    limitParam:
+      in: query
+      name: limit
+      description: Размер выборки
+      schema:
+        type: number
+      required: false
+    offsetParam:
+      in: query
+      name: offset
+      description: Сдвиг выборки
+      schema:
+        type: number
+      required: false
+    sortDirectionParam:
+      in: query
+      name: sortDir
+      description: Направление сортировки
+      schema:
+        type: string
+        enum:
+          - ASC
+          - DESC
+      required: false
+    SortByParam:
+      in: query
+      name: sortBy
+      description: Поле по которому будет производиться сортировка
+      schema:
+        type: string
+        example: name
+      required: false
+
+  schemas:
+    Equipment:
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        state:
+          type: string
+          enum: [issued, in_stock]
+        commissioningDate:
+          type: string
+          description: Дата ввода в эксплуотацию
+        decomissioningDate:
+          type: string
+          description: Дата списания
+        location:
+          type: string
+        type:
+          type: string
+          example: monitor
+
+  responses:
+    EquipmentPageableResponse:
+      description: Информация об оборудовании
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Equipment'
+              total:
+                type: integer
